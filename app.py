@@ -1,15 +1,14 @@
 import streamlit as st
-from menu import menu
-from model import predict_order
 
-# Page config
-st.set_page_config(page_title="Smart Restaurant", layout="wide")
-st.markdown("""
+st.set_page_config(page_title="Restaurant Dashboard", layout="wide")
+
+# 🔥 Background + Blur + Modern UI
+page_bg = """
 <style>
 
-/* Background image (Food theme) */
+/* Background */
 .stApp {
-    background: url("https://images.unsplash.com/photo-1559339352-11d035aa65de") no-repeat center center fixed;
+    background: url("https://images.unsplash.com/photo-1498654896293-37aacf113fd9") no-repeat center center fixed;
     background-size: cover;
 }
 
@@ -17,101 +16,112 @@ st.markdown("""
 .stApp::before {
     content: "";
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    backdrop-filter: blur(6px);
-    background-color: rgba(0,0,0,0.5);
+    inset: 0;
+    backdrop-filter: blur(12px);
+    background: rgba(0,0,0,0.65);
     z-index: -1;
 }
 
-/* Main content box */
+/* Glass container */
 .block-container {
-    background-color: rgba(0, 0, 0, 0.7);
-    padding: 25px;
-    border-radius: 12px;
+    background: rgba(0, 0, 0, 0.75);
+    padding: 30px;
+    border-radius: 20px;
 }
 
-/* Text color */
-h1, h2, h3, h4, p, label {
+/* Card style */
+.card {
+    background: rgba(255,255,255,0.1);
+    padding: 15px;
+    border-radius: 15px;
+    text-align: center;
+    margin: 10px;
+}
+
+/* Text */
+h1, h2, h3, p {
     color: white !important;
+    text-align: center;
+}
+
+/* Button */
+.stButton>button {
+    background-color: #ff4b4b;
+    color: white;
+    border-radius: 10px;
+    height: 3em;
+    width: 100%;
+    font-size: 16px;
 }
 
 </style>
-""", unsafe_allow_html=True)
+"""
 
-# Custom CSS (MAIN MAGIC)
-st.markdown("""
-    <style>
-    body {
-        background-color: #0e1117;
-    }
-    .title {
-        text-align: center;
-        color: #ff9933;
-        font-size: 40px;
-        font-weight: bold;
-    }
-    .card {
-        background-color: #1c1f26;
-        padding: 15px;
-        border-radius: 10px;
-        margin-bottom: 10px;
-    }
-    .total {
-        background: linear-gradient(90deg, #00c6ff, #0072ff);
-        padding: 15px;
-        border-radius: 10px;
-        text-align: center;
-        color: white;
-        font-size: 22px;
-        font-weight: bold;
-    }
-    </style>
-""", unsafe_allow_html=True)
+st.markdown(page_bg, unsafe_allow_html=True)
 
-# Title
-st.markdown("<div class='title'>🍽 Smart Restaurant System</div>", unsafe_allow_html=True)
+# 🔥 Title
+st.title("🍴 Smart Restaurant Dashboard")
 
-st.markdown("---")
+st.write("### Choose Your Items")
 
-col1, col2 = st.columns(2)
+# 🔥 Cards layout
+col1, col2, col3 = st.columns(3)
 
-selected_items = []
-
-# LEFT SIDE MENU
 with col1:
-    st.subheader("📋 Menu")
+    st.markdown('<div class="card">🍕 Pizza - ₹200</div>', unsafe_allow_html=True)
+    pizza = st.checkbox("Select Pizza")
 
-    for item, price in menu.items():
-        if st.checkbox(f"{item} - ₹{price}"):
-            selected_items.append(item)
+    st.markdown('<div class="card">🍔 Burger - ₹120</div>', unsafe_allow_html=True)
+    burger = st.checkbox("Select Burger")
 
-# RIGHT SIDE BILL
 with col2:
-    st.subheader("🧾 Your Bill")
+    st.markdown('<div class="card">🍝 Pasta - ₹150</div>', unsafe_allow_html=True)
+    pasta = st.checkbox("Select Pasta")
+
+    st.markdown('<div class="card">🍟 Fries - ₹80</div>', unsafe_allow_html=True)
+    fries = st.checkbox("Select Fries")
+
+with col3:
+    st.markdown('<div class="card">🍛 Biryani - ₹250</div>', unsafe_allow_html=True)
+    biryani = st.checkbox("Select Biryani")
+
+    st.markdown('<div class="card">☕ Coffee - ₹50</div>', unsafe_allow_html=True)
+    coffee = st.checkbox("Select Coffee")
+
+# 🔥 Button
+if st.button("Generate Bill 💳"):
 
     total = 0
+    items = []
 
-    if selected_items:
-        for item in selected_items:
-            st.markdown(f"<div class='card'>{item} - ₹{menu[item]}</div>", unsafe_allow_html=True)
-            total += menu[item]
+    if pizza:
+        total += 200
+        items.append("Pizza")
+    if burger:
+        total += 120
+        items.append("Burger")
+    if pasta:
+        total += 150
+        items.append("Pasta")
+    if fries:
+        total += 80
+        items.append("Fries")
+    if biryani:
+        total += 250
+        items.append("Biryani")
+    if coffee:
+        total += 50
+        items.append("Coffee")
 
-        st.markdown(f"<div class='total'>Total Bill: ₹{total}</div>", unsafe_allow_html=True)
+    if total == 0:
+        st.warning("⚠️ Please select items")
     else:
-        st.warning("Please select items")
+        st.success("✅ Order Placed!")
 
-# RECOMMENDATION SECTION
-if selected_items:
-    st.markdown("---")
-    st.subheader("🤖 Recommended Items")
-
-    recs = predict_order(selected_items)
-
-    if recs:
-        for item in recs:
-            st.success(f"👉 {item}")
-    else:
-        st.info("No recommendations available")
+        # 🔥 Result box
+        st.markdown(f"""
+        <div class="card">
+        <h3>🧾 Items: {', '.join(items)}</h3>
+        <h2>💰 Total: ₹{total}</h2>
+        </div>
+        """, unsafe_allow_html=True)
